@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inform Studio</title>
+    <link href="/assets/css/index.css" rel="stylesheet">    <link href="/assets/css/arrows.css" rel="stylesheet">    <link href="/assets/css/templates/article.css" rel="stylesheet"></head>
+
+<body>
+    <header class="header">
+        <a href="/" class="logo">
+            <img src="/assets/logo_square_black.svg">
+        </a>
+        <nav class="menu">
+    <ul>
+                <li>
+            <a
+                                href="/projects">Projects            </a>
+        </li>
+                <li>
+            <a
+                                href="/about">About            </a>
+        </li>
+                <li>
+            <a
+                 class="active"                href="/blog">Blog            </a>
+        </li>
+                <li>
+            <a
+                                href="/contact">Contact            </a>
+        </li>
+            </ul>
+</nav>    </header>
+    <main class="main">
+
+        <article>
+            <h1>Simulating cell division in Blender</h1>
+            <span class="date">Published: Jun 2020</span>
+
+                            <div class="article">
+                    <p>Using Blender's rigid body physics and python scripting, we can create a very basic simulation of cell divison:</p><figure data-ratio="auto">
+    <img src="/media/pages/blog/simulating-cell-division-in-blender/b181c46cb3-1655994007/cells.mp4" alt="">
+  
+  </figure>
+<p>Each cell consists of a rigid body, which interacts with other rigid bodies in the simulation, and a metaball parented to the rigid body, which is what actually gets rendered on screen. When a cell duplicates, the rigid bodies of each cell push each other apart:</p><figure data-ratio="auto">
+    <img src="/media/pages/blog/simulating-cell-division-in-blender/c8e72f90ad-1655993987/rigid_body_division.mp4" alt="">
+  
+  </figure>
+<p>To begin, we'll set up a Cell class:</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Cell</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, rigid_body, metaball)</span>:</span>
+        <span class="hljs-comment"># initiate cell with a random division time</span>
+        self.divisionTime = random.randint(<span class="hljs-number">60</span>, <span class="hljs-number">120</span>)
+        <span class="hljs-comment"># each cell is composed of two objects, a rigid body that is part of the simulation</span>
+        <span class="hljs-comment"># and a metaball that is rendered</span>
+        self.rigid_body = rigid_body
+        self.metaball = metaball</code></pre>
+<p>The basic idea is simple: each cell has an internal counter which gets decremented each frame, and if the counter equals zero, the cell divides (creates a duplicate of itself):</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decrementTime</span><span class="hljs-params">(self)</span>:</span>
+    <span class="hljs-keyword">if</span> (self.divisionTime == <span class="hljs-number">0</span>):
+        self.divisionTime = random.randint(<span class="hljs-number">60</span>, <span class="hljs-number">120</span>)
+        self.duplicate()
+    <span class="hljs-keyword">else</span>:
+        self.divisionTime -= <span class="hljs-number">1</span>;</code></pre>
+<p>When a cell duplicates, we copy the rigid body and metaball from a prototypical cell object (which we just hide in another layer in Blender, not part of the simulation.) These objects are placed at the location of the cell which just duplicated:</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">duplicate</span><span class="hljs-params">(self)</span>:</span>
+    <span class="hljs-comment"># get current cell position</span>
+    matrix = self.rigid_body.matrix_world.copy()
+    print(self.rigid_body)
+    print(matrix.translation)
+    position = matrix.translation
+
+    <span class="hljs-comment"># copy rigid body</span>
+    rb = deep_copy(rb_orig)
+    rb.matrix_world = matrix
+
+    <span class="hljs-comment"># ensure that the new rigid body object is in the rigid body collection</span>
+    ensure_single_collection(rb, rigid_bodies)
+
+    <span class="hljs-comment"># set rigid body position by translating the vertices in edit mode</span>
+    rb.select_set(<span class="hljs-literal">True</span>)
+    bpy.context.view_layer.objects.active = rb
+    bpy.ops.object.editmode_toggle()
+    bpy.ops.transform.translate(value = position)
+    bpy.ops.object.editmode_toggle()
+    rb.select_set(<span class="hljs-literal">False</span>)
+    bpy.context.view_layer.objects.active = <span class="hljs-literal">None</span>
+
+    <span class="hljs-comment">#copy metaball</span>
+    mb = deep_copy(mb_orig)
+
+    <span class="hljs-comment"># ensure that the new metaball is in the metaball collection</span>
+    ensure_single_collection(mb, metaballs)
+
+    <span class="hljs-comment"># position and parent the metaball to the rigid body</span>
+    mb.location = position
+    mb.parent = rb
+    mb.matrix_parent_inverse = rb.matrix_world.inverted()
+
+    <span class="hljs-comment"># create new cell object</span>
+    new_cell = Cell(rb, mb)
+
+    <span class="hljs-comment"># add to array of cells in simulation</span>
+    cells.append(new_cell)</code></pre>
+<p>Some helper functions used in the function above for collection management and copying objects:</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">ensure_single_collection</span><span class="hljs-params">(object, collection)</span>:</span>
+    <span class="hljs-keyword">if</span> object.name <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> collection.objects:
+        collection.objects.link(object)
+        <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> bpy.data.collections:
+            <span class="hljs-keyword">if</span> c <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> collection <span class="hljs-keyword">and</span> object.name <span class="hljs-keyword">in</span> c.objects:
+                c.unlink(object)
+    <span class="hljs-keyword">if</span> object.name <span class="hljs-keyword">in</span> bpy.context.scene.collection.objects:
+        bpy.context.scene.collection.objects.unlink(object)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">deep_copy</span><span class="hljs-params">(obj)</span>:</span>
+    new_obj = obj.copy()
+    new_obj.data = obj.data.copy()
+    <span class="hljs-keyword">return</span> new_obj</code></pre>
+<p>Since the Eevee render engine doesn't play well with frame handlers (at least on my machine), the render is handled by a simple loop:</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python"><span class="hljs-keyword">for</span> frame <span class="hljs-keyword">in</span> range(scene.frame_start, scene.frame_end + <span class="hljs-number">1</span>):
+    add_cells(scene)
+    bpy.context.scene.render.filepath = filepath + str(frame).zfill(<span class="hljs-number">4</span>)
+    scene.frame_set(frame)
+    bpy.ops.render.render(write_still=<span class="hljs-literal">True</span>)
+    <span class="hljs-keyword">if</span> frame == scene.frame_end:
+        bpy.context.scene.render.filepath = filepath <span class="hljs-comment">#reset filepath</span></code></pre>
+<p>The function <strong>add_cells()</strong> decrements counter for each cell in our cell array, and handles clearing objects when we reach the end of the range of rendered frames:</p><p></p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add_cells</span><span class="hljs-params">(scene)</span>:</span>
+    <span class="hljs-keyword">if</span> scene.frame_current == scene.frame_end:
+        bpy.ops.screen.animation_cancel()
+        remove_all_objects_from_collection(rigid_bodies)
+        remove_all_objects_from_collection(metaballs)
+        remove_unused_data_blocks()
+    <span class="hljs-keyword">else</span>:
+        <span class="hljs-keyword">for</span> cell <span class="hljs-keyword">in</span> cells:
+            cell.decrementTime()
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">remove_unused_data_blocks</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">for</span> block <span class="hljs-keyword">in</span> bpy.data.meshes:
+        <span class="hljs-keyword">if</span> block.users == <span class="hljs-number">0</span>:
+            bpy.data.meshes.remove(block)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">remove_all_objects_from_collection</span><span class="hljs-params">(collection)</span>:</span>
+    objects_to_delete = collection.objects
+    <span class="hljs-keyword">for</span> o <span class="hljs-keyword">in</span> objects_to_delete:
+        bpy.data.objects.remove(o, do_unlink=<span class="hljs-literal">True</span>)</code></pre>
+<p>(This approach could definitely be improved – for example, the end condition should probably be handled inside the render loop itself.)</p><p>The full script is as follows:</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python"><span class="hljs-keyword">import</span> bpy, math, random
+
+scene = bpy.context.scene
+bpy.context.scene.frame_set(<span class="hljs-number">1</span>)
+
+rigid_bodies = bpy.data.collections[<span class="hljs-string">'Rigid Bodies'</span>]
+metaballs = bpy.data.collections[<span class="hljs-string">'Metaballs'</span>]
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Cell</span>:</span>
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self, rigid_body, metaball)</span>:</span>
+        <span class="hljs-comment"># initiate cell with a random division time</span>
+        self.divisionTime = random.randint(<span class="hljs-number">60</span>, <span class="hljs-number">120</span>)
+        <span class="hljs-comment"># each cell is composed of two objects, a rigid body that is part of the simulation</span>
+        <span class="hljs-comment"># and a metaball that is rendered</span>
+        self.rigid_body = rigid_body
+        self.metaball = metaball
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">decrementTime</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-keyword">if</span> (self.divisionTime == <span class="hljs-number">0</span>):
+            self.divisionTime = random.randint(<span class="hljs-number">60</span>, <span class="hljs-number">120</span>)
+            self.duplicate()
+        <span class="hljs-keyword">else</span>:
+            self.divisionTime -= <span class="hljs-number">1</span>;
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">duplicate</span><span class="hljs-params">(self)</span>:</span>
+        <span class="hljs-comment"># get current cell position</span>
+        matrix = self.rigid_body.matrix_world.copy()
+        print(self.rigid_body)
+        print(matrix.translation)
+        position = matrix.translation
+
+        <span class="hljs-comment"># copy rigid body</span>
+        rb = deep_copy(rb_orig)
+        rb.matrix_world = matrix
+
+        <span class="hljs-comment"># ensure that the new rigid body object is in the rigid body collection</span>
+        ensure_single_collection(rb, rigid_bodies)
+
+        <span class="hljs-comment"># set rigid body position by translating the vertices in edit mode</span>
+        rb.select_set(<span class="hljs-literal">True</span>)
+        bpy.context.view_layer.objects.active = rb
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.transform.translate(value = position)
+        bpy.ops.object.editmode_toggle()
+        rb.select_set(<span class="hljs-literal">False</span>)
+        bpy.context.view_layer.objects.active = <span class="hljs-literal">None</span>
+
+        <span class="hljs-comment">#copy metaball</span>
+        mb = deep_copy(mb_orig)
+
+        <span class="hljs-comment"># ensure that the new metaball is in the metaball collection</span>
+        ensure_single_collection(mb, metaballs)
+
+        <span class="hljs-comment"># position and parent the metaball to the rigid body</span>
+        mb.location = position
+        mb.parent = rb
+        mb.matrix_parent_inverse = rb.matrix_world.inverted()
+
+        <span class="hljs-comment"># create new cell object</span>
+        new_cell = Cell(rb, mb)
+
+        <span class="hljs-comment"># add to array of cells in simulation</span>
+        cells.append(new_cell)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">ensure_single_collection</span><span class="hljs-params">(object, collection)</span>:</span>
+    <span class="hljs-keyword">if</span> object.name <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> collection.objects:
+        collection.objects.link(object)
+        <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> bpy.data.collections:
+            <span class="hljs-keyword">if</span> c <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> collection <span class="hljs-keyword">and</span> object.name <span class="hljs-keyword">in</span> c.objects:
+                c.unlink(object)
+    <span class="hljs-keyword">if</span> object.name <span class="hljs-keyword">in</span> bpy.context.scene.collection.objects:
+        bpy.context.scene.collection.objects.unlink(object)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">deep_copy</span><span class="hljs-params">(obj)</span>:</span>
+    new_obj = obj.copy()
+    new_obj.data = obj.data.copy()
+    <span class="hljs-keyword">return</span> new_obj
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">add_cells</span><span class="hljs-params">(scene)</span>:</span>
+    <span class="hljs-keyword">if</span> scene.frame_current == scene.frame_end:
+        bpy.ops.screen.animation_cancel()
+        remove_all_objects_from_collection(rigid_bodies)
+        remove_all_objects_from_collection(metaballs)
+        remove_unused_data_blocks()
+    <span class="hljs-keyword">else</span>:
+        <span class="hljs-keyword">for</span> cell <span class="hljs-keyword">in</span> cells:
+            cell.decrementTime()
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">remove_unused_data_blocks</span><span class="hljs-params">()</span>:</span>
+    <span class="hljs-keyword">for</span> block <span class="hljs-keyword">in</span> bpy.data.meshes:
+        <span class="hljs-keyword">if</span> block.users == <span class="hljs-number">0</span>:
+            bpy.data.meshes.remove(block)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">remove_all_objects_from_collection</span><span class="hljs-params">(collection)</span>:</span>
+    objects_to_delete = collection.objects
+    <span class="hljs-keyword">for</span> o <span class="hljs-keyword">in</span> objects_to_delete:
+        bpy.data.objects.remove(o, do_unlink=<span class="hljs-literal">True</span>)
+
+remove_all_objects_from_collection(rigid_bodies)
+remove_all_objects_from_collection(metaballs)
+remove_unused_data_blocks()
+
+cells = []
+rb_orig = bpy.data.objects[<span class="hljs-string">"Rigid Body"</span>]
+mb_orig = bpy.data.objects[<span class="hljs-string">"Mball"</span>]
+first_cell = Cell(rb_orig, mb_orig)
+first_cell.duplicate()
+cells[<span class="hljs-number">0</span>].divisionTime = <span class="hljs-number">1</span>
+
+filepath = bpy.context.scene.render.filepath = <span class="hljs-string">"/Users/sean/Desktop/cell_division/test-frames/"</span>
+
+<span class="hljs-keyword">for</span> frame <span class="hljs-keyword">in</span> range(scene.frame_start, scene.frame_end + <span class="hljs-number">1</span>):
+    add_cells(scene)
+    bpy.context.scene.render.filepath = filepath + str(frame).zfill(<span class="hljs-number">4</span>)
+    scene.frame_set(frame)
+    bpy.ops.render.render(write_still=<span class="hljs-literal">True</span>)
+    <span class="hljs-keyword">if</span> frame == scene.frame_end:
+        bpy.context.scene.render.filepath = filepath <span class="hljs-comment">#reset filepath</span></code></pre>
+<p>A couple things to note:</p><p>1) In order to get accurate positions for the rigid bodies, the <strong>Steps per Second </strong>and <strong>Solver Iterations</strong> both need to be turned way up from the defaults (I arbitrarily set 200 for each).</p><p>2) In order to keep the cells clustered together, I added an attractive force field pulling the rigid bodies towards the center.</p><p>Download the <a href="https://drive.google.com/file/d/1xde9YH09Lb4piirjevfquL-dMWWDVzt3/view?usp=sharing" rel="noopener noreferrer">blender file</a> if you'd like to take a look around or use it in one of your projects.</p>                </div>
+                    </article>
+        
+        <br>
+        <div class="small-text">Questions or comments? Email <a href="mailto:sean@inform.studio">sean@inform.studio></a></div>
+        
+        <nav class="switcher">
+            <a href="/blog/rendering-boys-surface-in-blender">
+        <span class="arrow">&#x2190</span>
+        Rendering Boy's surface in Blender    </a>
+    
+    <a class="back" href=/blog>All Articles</a>
+
+        <a href="/blog/starting-off">
+        Starting Off        <span class="arrow">&#x2192</span>
+    </a>
+    </nav>    </main>
+
+    <footer class="footer">
+        <dl>
+            <dt>Inform Studio</dt>
+            <dd>Graphic Design for Science Communication</dd>
+        </dl>
+        <dl>
+            <dt>Additional Information</dt>
+            <dd><a href="../copyright">Copyright</a></dd>
+            <dd><a href="../colophon">Colophon</a></dd>
+        </dl>
+        <dl>
+            <dt>Contact</dt>
+            <dd>Email <a href="mailto:sean@inform.studio">sean@inform.studio</a></dd>
+        </dl>
+        <dl>
+            <dt>Social Media</dt>
+            <dd>Instagram <a href="https://www.instagram.com/inform.studio/">@inform.studio</a></dd>
+            <!-- <dd>Twitter <a href="#">@inform_studio</a></dd> -->
+        </dl>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+.project-details {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-gap: 2rem;
+    line-height: 1.5em;
+    border: 1px solid black;
+    word-wrap: break-word;
+}
+
+@media only screen and (max-width: 800px) {
+    .project-details {
+        grid-template-columns: 1fr;
+        grid-gap: 0.5rem;
+    }
+}
+
+.project-description {
+    padding: 1rem;
+}
+
+.project-info {
+    border-left: 1px solid black;
+    background-color: gainsboro;
+    padding: 1rem;
+}
+
+@media only screen and (max-width: 800px) {
+    .project-info {
+        border-top: 1px solid black;
+        border-left: none;
+    }
+}
+
+.project-notes {
+margin-top: 2rem;
+}
+
+.project-notes figcaption {
+    font-size: 0.9rem;
+    opacity: 0.75;
+    margin-bottom: 1rem;
+}
+
+.videoplayer {
+    border: 1px solid black;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: block;
+    padding: 56.25% 0 0 0;
+    position: relative;
+}

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inform Studio</title>
+    <link href="/assets/css/index.css" rel="stylesheet">    <link href="/assets/css/arrows.css" rel="stylesheet">    <link href="/assets/css/templates/article.css" rel="stylesheet"></head>
+
+<body>
+    <header class="header">
+        <a href="/" class="logo">
+            <img src="/assets/logo_square_black.svg">
+        </a>
+        <nav class="menu">
+    <ul>
+                <li>
+            <a
+                                href="/projects">Projects            </a>
+        </li>
+                <li>
+            <a
+                                href="/about">About            </a>
+        </li>
+                <li>
+            <a
+                 class="active"                href="/blog">Blog            </a>
+        </li>
+                <li>
+            <a
+                                href="/contact">Contact            </a>
+        </li>
+            </ul>
+</nav>    </header>
+    <main class="main">
+
+        <article>
+            <h1>Rendering Boy's surface in Blender</h1>
+            <span class="date">Published: Nov 2020</span>
+
+                            <div class="article">
+                    <p><a href="https://en.wikipedia.org/wiki/Boy%27s_surface" rel="noopener noreferrer">Boy's surface</a> is a one-sided surface in three-dimensional surface (or in mathematical jargon, an immersion of the real projective plane in R3) that was discovered by Werner Boy, a student of David Hilbert, in 1902.</p><figure data-ratio="auto">
+    <img src="/media/pages/blog/rendering-boys-surface-in-blender/4fa76fd8c4-1655985604/boys-surface.jpg" alt="">
+  
+  </figure>
+<p>To render this lovely shape, we're going to use the Bryant–Kusner parametrization:</p><figure data-ratio="auto">
+    <img src="/media/pages/blog/rendering-boys-surface-in-blender/96bbb110a3-1655985498/parametrization.jpg" alt="">
+  
+  </figure>
+<p>In each case, <strong>w</strong> is a complex number where the absolute value of w is less than or equal to one (|w| ≤ 1):</p><p>We begin our geometry-generation with some usual imports. The cmath package is included for dealing with complex numbers.</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python"><span class="hljs-keyword">import</span> bpy
+<span class="hljs-keyword">import</span> cmath
+<span class="hljs-keyword">import</span> math</code></pre>
+<p>Next, we'll set up some functions for calculating the Cartesian x, y, and z positions for each vertex:</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">g1</span><span class="hljs-params">(w)</span>:</span>
+    k = (w * (<span class="hljs-number">1</span> - w ** <span class="hljs-number">4</span>)) / (w ** <span class="hljs-number">6</span> + math.sqrt(<span class="hljs-number">5</span>) * w ** <span class="hljs-number">3</span> - <span class="hljs-number">1</span>)
+    <span class="hljs-keyword">return</span> <span class="hljs-number">-3</span>/<span class="hljs-number">2</span> * k.imag
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">g2</span><span class="hljs-params">(w)</span>:</span>
+    k = (w * (<span class="hljs-number">1</span> + w ** <span class="hljs-number">4</span>)) / (w ** <span class="hljs-number">6</span> + math.sqrt(<span class="hljs-number">5</span>) * w ** <span class="hljs-number">3</span> - <span class="hljs-number">1</span>)
+    <span class="hljs-keyword">return</span> <span class="hljs-number">-3</span>/<span class="hljs-number">2</span> * k.real
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">g3</span><span class="hljs-params">(w)</span>:</span>
+    k = (<span class="hljs-number">1</span> + w ** <span class="hljs-number">6</span>) / (w ** <span class="hljs-number">6</span> + math.sqrt(<span class="hljs-number">5</span>) * w ** <span class="hljs-number">3</span> - <span class="hljs-number">1</span>)
+    <span class="hljs-keyword">return</span> k.imag - <span class="hljs-number">1</span>/<span class="hljs-number">2</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">g</span><span class="hljs-params">(w)</span>:</span>
+    <span class="hljs-keyword">return</span> g1(w) ** <span class="hljs-number">2</span> + g2(w) ** <span class="hljs-number">2</span> + g3(w) ** <span class="hljs-number">2</span>
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">X</span><span class="hljs-params">(w)</span>:</span>
+    <span class="hljs-keyword">return</span> g1(w) / g(w)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">Y</span><span class="hljs-params">(w)</span>:</span>
+    <span class="hljs-keyword">return</span> g2(w) / g(w)
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">Z</span><span class="hljs-params">(w)</span>:</span>
+    <span class="hljs-keyword">return</span> g3(w) / g(w)</code></pre>
+<p>Next, the actual mesh generation. Note that the restriction |w| ≤ 1 makes the choice of polar coordinates natural:</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python">r_divisions = <span class="hljs-number">32</span>
+phi_divisions = <span class="hljs-number">64</span>
+verts = []
+faces = []
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">vertex</span><span class="hljs-params">(r, p)</span>:</span>
+    <span class="hljs-string">""" Create a single vertex """</span>
+    radius = <span class="hljs-number">1.0</span> / r_divisions * r
+    phi = <span class="hljs-number">2.0</span> * math.pi / phi_divisions * p
+    w = cmath.rect(radius, phi)
+    <span class="hljs-keyword">return</span> (X(w), Y(w), Z(w))
+
+verts = [vertex(r, p) <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> range(r_divisions) <span class="hljs-keyword">for</span> p <span class="hljs-keyword">in</span> range(phi_divisions)]
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">face</span><span class="hljs-params">(r, p)</span>:</span>
+    <span class="hljs-string">""" Create a single face """</span>
+    v1 = r * phi_divisions + p
+    v2 = (r + <span class="hljs-number">1</span>) * phi_divisions + p
+    v3 = (r + <span class="hljs-number">1</span>) * phi_divisions + <span class="hljs-number">1</span> + p
+    v4 = r * phi_divisions + <span class="hljs-number">1</span> + p
+    <span class="hljs-keyword">return</span> (v1, v2, v3, v4)
+
+faces = [face(r, p) <span class="hljs-keyword">for</span> r <span class="hljs-keyword">in</span> range(r_divisions<span class="hljs-number">-1</span>) <span class="hljs-keyword">for</span> p <span class="hljs-keyword">in</span> range(phi_divisions - <span class="hljs-number">1</span>)]</code></pre>
+<p>Finally, to generate the mesh:</p>
+<link href="/assets/css/colorbrewer.css" rel="stylesheet">
+<pre class="hljs"><code data-language="python">name = <span class="hljs-string">'Boys Surface'</span>
+
+<span class="hljs-comment"># Create Mesh Datablock</span>
+mesh = bpy.data.meshes.new(name)
+mesh.from_pydata(verts, [], faces)
+
+<span class="hljs-comment"># Create Object and link to scene</span>
+obj = bpy.data.objects.new(name, mesh)
+bpy.context.scene.collection.objects.link(obj)</code></pre>
+<p>Two important notes:</p><p>1) There will be two seams left in the mesh which have to be joined by hand, simply by selecting the edges and creating new faces. I found this simpler than trying to find which vertex indexes would eventually align as the mesh curves back and self-intersects.</p><p>2) Since this is a single-sided surface, there are seams where the normals are all weird ¯\_(ツ)_/¯</p><p>Here's the final result (with subsurf applied):</p><figure data-ratio="auto">
+    <img src="/media/pages/blog/rendering-boys-surface-in-blender/042e3428ac-1655994072/boys-render.mp4" alt="">
+  
+  </figure>
+<p>Download the <a href="https://drive.google.com/file/d/1nYTEnl316myLbXSBb6KumlJOoCD128DP/view?usp=sharing" rel="noopener noreferrer">blender file</a> if you'd like to take a look around or use it in one of your projects.</p>                </div>
+                    </article>
+        
+        <br>
+        <div class="small-text">Questions or comments? Email <a href="mailto:sean@inform.studio">sean@inform.studio></a></div>
+        
+        <nav class="switcher">
+            <a href="/blog/tdse-simulation-with-webgl">
+        <span class="arrow">&#x2190</span>
+        TDSE Simulation with WebGL    </a>
+    
+    <a class="back" href=/blog>All Articles</a>
+
+        <a href="/blog/simulating-cell-division-in-blender">
+        Simulating cell division in Blender        <span class="arrow">&#x2192</span>
+    </a>
+    </nav>    </main>
+
+    <footer class="footer">
+        <dl>
+            <dt>Inform Studio</dt>
+            <dd>Graphic Design for Science Communication</dd>
+        </dl>
+        <dl>
+            <dt>Additional Information</dt>
+            <dd><a href="../copyright">Copyright</a></dd>
+            <dd><a href="../colophon">Colophon</a></dd>
+        </dl>
+        <dl>
+            <dt>Contact</dt>
+            <dd>Email <a href="mailto:sean@inform.studio">sean@inform.studio</a></dd>
+        </dl>
+        <dl>
+            <dt>Social Media</dt>
+            <dd>Instagram <a href="https://www.instagram.com/inform.studio/">@inform.studio</a></dd>
+            <!-- <dd>Twitter <a href="#">@inform_studio</a></dd> -->
+        </dl>
+    </footer>
+
+</body>
+</html>

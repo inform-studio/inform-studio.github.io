@@ -1,0 +1,260 @@
+@font-face {
+    font-family: soehne;
+    src: url(../fonts/soehne-buch.woff2);
+}
+
+@font-face {
+    font-family: soehne;
+    src: url(../fonts/soehne-kraftig.woff2);
+    font-weight: bold;
+}
+
+/* ---- */
+/* Global */
+/* ---- */
+
+body {
+    font-family: 'soehne', sans-serif;
+    margin: auto;
+    margin-top: 40px;
+    max-width: 1000px;
+    background-color: #fbfbfb;
+    padding: 0 1rem;
+}
+
+@media only screen and (max-width: 800px) {
+    body {
+        padding: 0.5rem;
+        margin-top: 0px;
+        -webkit-text-size-adjust: 100% /* Fix automatic font scaling on iOS Safari */
+    }
+}
+
+ul, figure, dd, dl, ol {
+    padding: 0;
+    margin: 0;
+}
+
+ul, ol {
+    line-height: 1.5rem;
+    list-style-position: inside;
+}
+
+ul {
+    list-style-type: square;
+}
+
+dt {
+    font-weight: bold;
+}
+
+a {
+    color: black
+}
+
+img:not(.logo img) {
+    border: 1px solid black;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: block;
+}
+
+/* ---- */
+/* Header */
+/* ---- */
+
+header {
+    padding-top: 1rem;
+    display: flex;
+    border-bottom: 1px solid black;
+}
+
+.subhead {
+    margin-top: -0.8rem;
+    margin-bottom: 2rem;
+    font-weight: 100;
+}
+
+header a {
+    text-decoration: none;
+    color: black;
+    height: 5rem;
+}
+
+a:not(.logo):not(.image-link):hover {
+    opacity: 0.5;
+}
+
+header .logo img {
+    width: 5rem;
+    height: 5rem;
+}
+
+header .menu {
+    color: #000;
+    margin: 0px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}å
+
+header .menu ul {
+    margin: 0px;
+    display: flex;
+    align-items: center;
+}
+
+header .menu li {
+    font-size: 1.2rem;
+    display: inline-block;
+    padding-left: 3rem;
+}
+
+@media only screen and (max-width: 800px) {
+    header .menu {
+        padding-left: 0.5rem;
+    }
+    header .menu li {
+        padding: 0.5rem 1rem;
+    }
+    header .menu li:last-child {
+        padding-right: 0rem;
+    }
+}
+
+.active {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* ---- */
+/* Main */
+/* ---- */
+
+main {
+    margin: 4rem 0;
+}
+
+@media only screen and (max-width: 800px) {
+    main {
+        margin: 3rem 0;
+    }
+}
+
+main p {
+    max-width: 40rem;
+    line-height: 1.5rem;
+}
+
+main p, h1, h2, h3, h4, h5, h6 {
+    max-width: 40rem;
+}
+
+section {
+    margin-top: 4rem;
+}
+
+@media only screen and (max-width: 800px) {
+    section {
+        margin-top: 3rem;
+    }
+}
+
+.projects {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-column-gap: 1.5rem;
+    grid-row-gap: 3rem;
+    list-style: none;
+}
+
+@media only screen and (max-width: 800px) {
+    .projects {
+        grid-template-columns: repeat(2, 1fr);
+        grid-column-gap: 0.75rem;
+        grid-row-gap: 1.5rem;
+    }
+}
+
+.description {
+    font-size: 1.1rem;
+    line-height: 1.75rem;
+}
+
+article h2 {
+    margin-top: 2rem;
+}
+
+/* ---- */
+/* Switcher */
+/* ---- */
+
+.switcher {
+    margin-top: 6rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 2rem;
+    text-align: center;
+}
+
+.switcher .back {
+    display: block;
+}
+
+@media only screen and (max-width: 800px) {
+    .switcher {
+        margin-top: 4rem;
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .switcher .back {
+        display: none;
+    }
+}
+
+.switcher :first-child {
+    text-align: left;
+}
+
+.switcher :last-child {
+    text-align: right;
+}
+
+.switcher a {
+    font-size: 1.1rem;
+}
+
+/* ---- */
+/* Footer */
+/* ---- */
+
+footer {
+    border-top: 1px solid black;
+    line-height: 1.5em;
+    font-size: .9em;
+    margin: 8rem 0;
+    padding-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 2rem;
+}
+
+@media only screen and (max-width: 800px) {
+    footer {
+        grid-template-columns: repeat(2, 1fr);
+        margin-top: 4rem;
+        margin-bottom: 2rem;
+    }
+}
+
+.articles {
+    list-style-type: none;
+    list-style-position: inside;
+}
+
+.article-info, .small-text, .date {
+    font-size: .9em;
+}
+
+.article-title a {
+    font-size: 1.1em;
+}
