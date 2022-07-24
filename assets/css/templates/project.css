@@ -4,7 +4,6 @@
     grid-gap: 2rem;
     line-height: 1.5em;
     border: 1px solid black;
-    word-wrap: break-word;
 }
 
 @media only screen and (max-width: 800px) {
@@ -29,6 +28,11 @@
         border-top: 1px solid black;
         border-left: none;
     }
+}
+
+.project-link {
+    word-break: break-word;
+    hyphens: auto;
 }
 
 .project-notes {
