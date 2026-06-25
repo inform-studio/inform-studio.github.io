@@ -1,162 +1,398 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inform Studio</title>
-    <link href="/assets/css/index.css" rel="stylesheet">    <link href="/assets/css/arrows.css" rel="stylesheet">    </head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inform Studio - Sean Kelley</title>
+  <meta name="description" content="Inform Studio provides scientific and technical graphic design, illustration, figures, and animation by Sean Kelley.">
+  <style>
+    :root {
+      color-scheme: light;
+      --background: #fff;
+      --text: #151515;
+      --muted: #666;
+      --line: #d7d7d7;
+      --accent: #174ea6;
+      --field: #f6f6f6;
+      --section-space: 24px;
+    }
 
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    main {
+      width: min(100% - 40px, 900px);
+      margin: 0 auto;
+      padding: 36px 0 56px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: var(--section-space);
+      margin-bottom: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: 28px;
+      font-weight: 650;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin-bottom: 14px;
+      font-size: 18px;
+      font-weight: 650;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 650;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin-bottom: 14px;
+    }
+
+    a {
+      color: var(--accent);
+      text-underline-offset: 0.16em;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-top: 20px;
+    }
+
+    nav a {
+      color: var(--text);
+    }
+
+    section {
+      border-bottom: 1px solid var(--line);
+      padding: var(--section-space) 0;
+    }
+
+    dl {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 8px 24px;
+      margin: 0;
+    }
+
+    dt {
+      color: var(--muted);
+    }
+
+    dd {
+      margin: 0;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    address {
+      font-style: normal;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+      max-width: 680px;
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      background: var(--field);
+      color: var(--text);
+      padding: 9px 10px;
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+    }
+
+    button {
+      width: fit-content;
+      background: var(--text);
+      color: #fff;
+      cursor: pointer;
+      padding: 9px 14px;
+    }
+
+    button:hover {
+      background: #333;
+    }
+
+    .summary {
+      max-width: 740px;
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.45;
+    }
+
+    .service-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .service-list li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 150px;
+      gap: 20px;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+      margin: 0;
+    }
+
+    .price {
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .note {
+      color: var(--muted);
+      margin: 12px 0 0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .required {
+      color: var(--text);
+    }
+
+    .small-print {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .small-print h2 {
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    .small-print dl {
+      grid-template-columns: 170px 1fr;
+      gap: 7px 18px;
+    }
+
+    .small-print dt {
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100% - 28px, 900px);
+        padding-top: 28px;
+      }
+
+      dl,
+      .service-list li {
+        grid-template-columns: 1fr;
+      }
+
+      dd + dt {
+        margin-top: 10px;
+      }
+
+      .price {
+        text-align: left;
+      }
+    }
+  </style>
+</head>
 <body>
-    <header class="header">
-        <a href="/" class="logo">
-            <img src="/assets/logo_square_black.svg">
-        </a>
-        <nav class="menu">
-    <ul>
-                <li>
-            <a
-                                href="/projects">Projects            </a>
+  <main>
+    <header>
+      <h1>Inform Studio</h1>
+      <p class="summary">Scientific and technical graphic design by Sean Kelley. Inform Studio creates diagrams, explanatory illustrations, scientific figures, presentation graphics, and 2D/3D animations for researchers and technical teams.</p>
+      <nav aria-label="Page sections">
+        <a href="#services">Services and pricing</a>
+        <a href="#request">Request a service</a>
+        <a href="#contact">Contact</a>
+        <a href="#business">Business information</a>
+        <a href="#policies">Terms</a>
+      </nav>
+    </header>
+
+    <section id="services" aria-labelledby="services-heading">
+      <h2 id="services-heading">Services and pricing</h2>
+      <p>Inform Studio provides custom digital design services. Each project is quoted in writing before work begins. Prices depend on scientific complexity, number of deliverables, usage rights, schedule, and revision scope.</p>
+      <ul class="service-list">
+        <li>
+          <span>Scientific figures, diagrams, and technical schematics</span>
+          <span class="price">EUR 450-1,500</span>
         </li>
-                <li>
-            <a
-                                href="/about">About            </a>
+        <li>
+          <span>Explanatory illustrations for research, engineering, or public communication</span>
+          <span class="price">EUR 800-3,000</span>
         </li>
-                <li>
-            <a
-                                href="/blog">Blog            </a>
+        <li>
+          <span>2D or 3D scientific animation and motion graphics</span>
+          <span class="price">EUR 1,500-8,000</span>
         </li>
-                <li>
-            <a
-                                href="/contact">Contact            </a>
+        <li>
+          <span>Journal covers, posters, presentation graphics, and visual identity support</span>
+          <span class="price">EUR 700-3,500</span>
         </li>
-            </ul>
-</nav>    </header>
-    <main class="main">
-        <h1>Inform Studio</h1>
-        <h2 class="subhead">Graphic Design for Science Communication</h2>
-        <figure data-ratio="auto">
-    <img src="/media/pages/home/090f0cc734-1649844725/metasurface-comp-final.png" alt="">
-  
-  </figure>
-        <p class="description">Inform Studio is the design studio of Sean Kelley, a graphic designer and animator specializing in science communication.</p>
-        <a href="about">
-            Learn More <span class="arrow">&#x2192</span>
-        </a>
-        <!-- Banner -->
+        <li>
+          <span>Visual communication consulting, review, and project planning</span>
+          <span class="price">EUR 120/hour</span>
+        </li>
+      </ul>
+      <p class="note">No payment is required through this website. Customers can submit a service request below and will receive a written estimate before any invoice or payment request is issued.</p>
+    </section>
 
-        <!-- Type of Work -->
-        
-        <section>
-            <h2>Featured Projects</h2>
-            <ul class="projects">
-        <li>
-        <a href="/projects/shaping-orbital-angular-momentum-with-a-metasurface">
-            <figure>
-                                                <img alt="" src="/media/pages/projects/shaping-orbital-angular-momentum-with-a-metasurface/12740da455-1656242850/diagram-v4-thumb-500x-crop.jpg">                                <figcaption>
-                    Shaping orbital angular momentum with a metasurface                </figcaption>
-            </figure>
-        </a>
-        <span class="date">Apr 2022</span>
-    </li>
-        <li>
-        <a href="/projects/expanding-a-microring-resonator-frequency-comb">
-            <figure>
-                                                <img alt="" src="/media/pages/projects/expanding-a-microring-resonator-frequency-comb/c2097ea101-1656409510/microring-thumb-500x-crop.png">                                <figcaption>
-                    Expanding a microring resonator frequency comb                </figcaption>
-            </figure>
-        </a>
-        <span class="date">Feb 2022</span>
-    </li>
-        <li>
-        <a href="/projects/nanopore-biosensor">
-            <figure>
-                                                <img alt="" src="/media/pages/projects/nanopore-biosensor/283a3a5f86-1657270661/biosensor-thumb-500x-crop.jpg">                                <figcaption>
-                    Nanopore Biosensor                </figcaption>
-            </figure>
-        </a>
-        <span class="date">Apr 2021</span>
-    </li>
-        <li>
-        <a href="/projects/presolar-grains-inside-the-allende-meteorite">
-            <figure>
-                                                <img alt="" src="/media/pages/projects/presolar-grains-inside-the-allende-meteorite/315d2ba544-1649251461/512w-thumb-500x-crop.jpg">                                <figcaption>
-                    Presolar grains inside the Allende meteorite                </figcaption>
-            </figure>
-        </a>
-        <span class="date">Jan 2020</span>
-    </li>
-        <li>
-        <a href="/projects/studying-sugars-at-the-nanoscale">
-            <figure>
-                                                <img alt="" src="/media/pages/projects/studying-sugars-at-the-nanoscale/85378450a5-1656668735/cells-thumb-500x-crop.jpg">                                <figcaption>
-                    Studying sugars at the nanoscale                </figcaption>
-            </figure>
-        </a>
-        <span class="date">Oct 2019</span>
-    </li>
-        <li>
-        <a href="/projects/rydberg-atoms-in-a-2d-optical-lattice">
-            <figure>
-                                                <img alt="" src="/media/pages/projects/rydberg-atoms-in-a-2d-optical-lattice/62c8c6ecf5-1649934350/512w-thumb-500x-crop.jpg">                                <figcaption>
-                    Rydberg atoms in a 2D optical lattice                </figcaption>
-            </figure>
-        </a>
-        <span class="date">Mar 2016</span>
-    </li>
-    </ul>            <br>
-            <a href="projects">
-                See All <span class="arrow">&#x2192</span>
-            </a>
-        </section>
+    <section id="request" aria-labelledby="request-heading">
+      <h2 id="request-heading">Request a service</h2>
+      <p>Use this form to send a formal project request by email. If the form does not open your email client, contact <a href="mailto:sean@inform.studio">sean@inform.studio</a> directly with the same information.</p>
+      <form action="mailto:sean@inform.studio" method="post" enctype="text/plain">
+        <label>
+          Name <span class="required" aria-hidden="true">*</span>
+          <input name="name" autocomplete="name" required>
+        </label>
+        <label>
+          Email <span class="required" aria-hidden="true">*</span>
+          <input type="email" name="email" autocomplete="email" required>
+        </label>
+        <label>
+          Organization
+          <input name="organization" autocomplete="organization">
+        </label>
+        <label>
+          Service
+          <select name="service">
+            <option>Scientific figure or technical diagram</option>
+            <option>Explanatory illustration</option>
+            <option>2D/3D animation</option>
+            <option>Journal cover, poster, or presentation design</option>
+            <option>Consulting</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label>
+          Budget or price range
+          <input name="budget" placeholder="Example: EUR 1,000-3,000">
+        </label>
+        <label>
+          Project description <span class="required" aria-hidden="true">*</span>
+          <textarea name="project_description" required></textarea>
+        </label>
+        <button type="submit">Send request</button>
+      </form>
+    </section>
 
-        <section>
-            <h2>Featured Articles</h2>
-            <ul class="articles">
-                <li>
-                <div class="article-title"><a href="/blog/rendering-boys-surface-in-blender">Rendering Boy's surface in Blender</a></div>
-                <!-- <li>Guide</li> -->
-                <div class="article-info">Creating and rendering a non-orientable surface.</div>
-                <div class="date">Nov 2020</div>
-            </li>
-            <br>
-                <li>
-                <div class="article-title"><a href="/blog/simulating-cell-division-in-blender">Simulating cell division in Blender</a></div>
-                <!-- <li>Guide</li> -->
-                <div class="article-info">Using python and some blender physics to simulate a simple model of cell division</div>
-                <div class="date">Jun 2020</div>
-            </li>
-            <br>
-    </ul>
+    <section id="contact" aria-labelledby="contact-heading">
+      <h2 id="contact-heading">Contact</h2>
+      <dl>
+        <dt>Email</dt>
+        <dd><a href="mailto:sean@inform.studio">sean@inform.studio</a></dd>
+        <dt>Website</dt>
+        <dd><a href="https://inform.studio/">inform.studio</a></dd>
+        <dt>Instagram</dt>
+        <dd><a href="https://www.instagram.com/inform.studio/">@inform.studio</a></dd>
+      </dl>
+    </section>
 
-            <a href="blog">
-                See All <span class="arrow">&#x2192</span>
-            </a>
-        </section> 
-    </main>
+    <section id="business" class="small-print" aria-labelledby="business-heading">
+      <h2 id="business-heading">Business information</h2>
+      <dl>
+        <dt>Trading name</dt>
+        <dd>Inform Studio</dd>
+        <dt>Registered business</dt>
+        <dd>Sean Kelley, entrepreneur individuel</dd>
+        <dt>SIRET</dt>
+        <dd>981 939 796 00018</dd>
+        <dt>Registered address</dt>
+        <dd>
+          <address>
+            19 Avenue du Morvan<br>
+            71400 Autun<br>
+            France
+          </address>
+        </dd>
+        <dt>Legal category</dt>
+        <dd>1000 - Entrepreneur individuel</dd>
+        <dt>Main activity</dt>
+        <dd>74.10Z - Specialised design activities</dd>
+        <dt>Status</dt>
+        <dd>Active business, registered in the Sirene directory since 27/11/2023</dd>
+      </dl>
+    </section>
 
-    <footer class="footer">
-        <dl>
-            <dt>Inform Studio</dt>
-            <dd>Graphic Design for Science Communication</dd>
-        </dl>
-        <dl>
-            <dt>Additional Information</dt>
-            <dd><a href="/copyright">Copyright</a></dd>
-            <dd><a href="/colophon">Colophon</a></dd>
-        </dl>
-        <dl>
-            <dt>Contact</dt>
-            <dd>Email <a href="mailto:sean@inform.studio">sean@inform.studio</a></dd>
-        </dl>
-        <dl>
-            <dt>Social Media</dt>
-            <dd>Instagram <a href="https://www.instagram.com/inform.studio/">@inform.studio</a></dd>
-            <!-- <dd>Twitter <a href="#">@inform_studio</a></dd> -->
-        </dl>
-    </footer>
-
+    <section id="policies" class="small-print" aria-labelledby="policies-heading">
+      <h2 id="policies-heading">Terms, cancellations, and refunds</h2>
+      <dl>
+        <dt>Terms and conditions</dt>
+        <dd>All work is custom digital design, illustration, animation, or consulting. Work begins only after a written quote has been accepted. Quotes define deliverables, fees, schedule, revision scope, payment terms, and usage rights.</dd>
+        <dt>Refund policy</dt>
+        <dd>Payments made before work begins are refundable. Deposits, milestone payments, and completed work are not refundable once the agreed work has begun. Incorrect charges or overpayments will be refunded where applicable.</dd>
+        <dt>Cancellation policy</dt>
+        <dd>Projects may be cancelled in writing by emailing <a href="mailto:sean@inform.studio">sean@inform.studio</a>. If a project is cancelled after work begins, completed work and committed project time remain payable.</dd>
+        <dt>Payment and delivery</dt>
+        <dd>Invoices are issued after quote acceptance or project milestones. Final digital files are delivered after approval and after any required final payment is received.</dd>
+      </dl>
+    </section>
+  </main>
 </body>
 </html>
